@@ -47,7 +47,7 @@ namespace Nunu
             //Create the spells
             Q = new Spell(SpellSlot.Q, 125);
             W = new Spell(SpellSlot.W, 700);
-            E = new Spell(SpellSlot.E, 600);
+            E = new Spell(SpellSlot.E, 580);
             R = new Spell(SpellSlot.R, 650);
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -222,7 +222,7 @@ namespace Nunu
             var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
 
-                if (Player.Distance(target) <= 600 && E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
+                if (E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
                 {
                     E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
                 }
