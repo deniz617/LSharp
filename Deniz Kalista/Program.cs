@@ -116,6 +116,7 @@ namespace Kalista
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
+            Game.PrintChat("Deniz Kalista Loaded.");
         }
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -140,15 +141,18 @@ namespace Kalista
         private static void Game_OnGameUpdate(EventArgs args)
         {
             packetCast = Config.Item("UsePacket").GetValue<bool>();
-            if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
-            {
-                Combo();
-            }
-            else
-            {
-                if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
-                    Harass();
+            var target2 = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
+            switch (Orbwalker.ActiveMode)
+            {
+                case Orbwalking.OrbwalkingMode.Combo:
+                    Orbwalker.SetAttack(false);
+                    Combo();
+                    Orbwalker.SetAttack(true);
+                    break;
+                case Orbwalking.OrbwalkingMode.Mixed:
+                    Harass();
+                    break;
             }
 
 
