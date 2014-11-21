@@ -220,8 +220,12 @@ namespace Nunu
         private static void Combo()
         {
             var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-
-
+               if(target != null)
+               { 
+              if(!E.IsReady() && !W.IsReady() && !R.IsReady())
+              {
+                  return;
+              }
                 if (E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
                 {
                     E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
@@ -237,7 +241,7 @@ namespace Nunu
                         R.Cast();
                     }
                 }
-           
+               }
 
         }
 
