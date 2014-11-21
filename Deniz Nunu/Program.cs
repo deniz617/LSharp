@@ -345,7 +345,7 @@ namespace Nunu
         public static void UseSmite()
         {
             var minion =
-                MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly,
+                MinionManager.GetMinions(Player.ServerPosition, 200, MinionTypes.All, MinionTeam.NotAlly,
                     MinionOrderTypes.MaxHealth).FirstOrDefault();
             if (minion != null)
             {
@@ -365,7 +365,6 @@ namespace Nunu
                         {
                             Player.SummonerSpellbook.CastSpell(smiteSlot, minion);
                         }
-                        if (!Q.IsReady()) return;
 
                       
                     }
