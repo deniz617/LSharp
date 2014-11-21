@@ -276,7 +276,7 @@ namespace Nunu
                 }
             }*/
         }
-        private static readonly string[] buffandepics =
+        private static readonly string[] buffS =
         {
             "LizardElder", "AncientGolem", "Worm", "Dragon"
         };
@@ -349,21 +349,20 @@ namespace Nunu
                     MinionOrderTypes.MaxHealth).FirstOrDefault();
             if (minion3 != null)
             {
-                foreach (var name in buffandepics)
+                foreach (var name in buffS)
                 {
-                    if (minion3.Name.ToLower().Contains(name.ToLower()))
+                    if ((minion3 != null && buffS.Any(n => n.ToLower() == minion3.Name.ToLower())) || (minion3 != null && buffS.Any(n => n.ToLower() == minion3.BaseSkinName.ToLower())) || (minion3 != null && buffS.Any(n => n.ToLower() == minion3.SkinName.ToLower())))
                     {
                         var damageQ = 250 + 150 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;  
                         smiteSlot = Player.GetSpellSlot("SummonerSmite");
-                        minionz = minion3;
-                        if (SmiteDmg() > minionz.Health && minionz.IsValidTarget(780)) Player.SummonerSpellbook.CastSpell(smiteSlot, minionz);
-                        if (Q.IsReady() && minionz.Distance(Player) < 140 && damageQ > minionz.Health)
+                        if (SmiteDmg() > minion3.Health && minion3.IsValidTarget(780)) Player.SummonerSpellbook.CastSpell(smiteSlot, minion3);
+                        if (Q.IsReady() && minion3.Distance(Player) <= 140 && damageQ > minion3.Health)
                         {
-                            Q.CastOnUnit(minionz ,true);//Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(minion.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
+                            Q.CastOnUnit(minion3 ,true);//Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(minion.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
                         }
-                        if(minionz.Distance(Player) < 200 && SmiteDmg() > minionz.Health)
+                        if(minionz.Distance(Player) < 200 && SmiteDmg() > minion3.Health)
                         {
-                            Player.SummonerSpellbook.CastSpell(smiteSlot, minionz);
+                            Player.SummonerSpellbook.CastSpell(smiteSlot, minion3);
                         }
 
                       
