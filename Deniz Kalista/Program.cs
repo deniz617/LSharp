@@ -23,7 +23,7 @@ namespace Kalista
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
 
-        private static Spell Q = new Spell(SpellSlot.Q, 1450);
+        private static Spell Q = new Spell(SpellSlot.Q, 1350);
         private static Spell W = new Spell(SpellSlot.W, 5500);
         private static Spell E = new Spell(SpellSlot.E, 970);
         private static Spell R = new Spell(SpellSlot.R, 1250);
@@ -46,10 +46,7 @@ namespace Kalista
 
             //Create the spells
 
-            Q.SetSkillshot(0.25f, 60f, 2000f, true, SkillshotType.SkillshotLine);
-            W.SetSkillshot(0.25f, 80f, 1600f, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.25f, 60f, 2000f, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(1f, 160f, 2000f, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.25f, 40, 1200, true, SkillshotType.SkillshotLine);
         
 
 
@@ -162,23 +159,23 @@ namespace Kalista
                 {
                     foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
                     {
-                        E.Cast(target);
+                            E.Cast();
                     }
                 }
             }
             if (Config.Item("StealE").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-                if (target.Health < Player.GetSpellDamage(Player, SpellSlot.E))
-                {
-                    E.Cast(target);
-                }
+                    if (GetEDmgByStacks(target) > target.Health)
+                    {
+                        E.Cast(target);
+                    }
             }
              if (Config.Item("Harasser").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical); 
                 var ManaHarass = Config.Item("QMana").GetValue<Slider>().Value;
-                if (Q.IsReady() && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass)
+                if (Q.IsReady() && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) >= ManaHarass)
                 {
                     if (Q.GetPrediction(target).Hitchance >= HitChance.High)
                     {
@@ -201,15 +198,22 @@ namespace Kalista
             }
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
-                if (Config.Item("ComboQ").GetValue<bool>() && Player.Distance(target) <= 1450 && Q.IsReady())// if target is in spear range and spear ready
+                if (Config.Item("ComboQ").GetValue<bool>() && Player.Distance(target) <= 1250 && Q.IsReady())// if target is in spear range and spear ready
                     {
                          Q.Cast(target);        
                     }
-                if (E.IsReady() && Player.Distance(target) <= E.Range)
+                                if (E.IsReady() && Player.Distance(target) <= E.Range)
                                 {
-                                    foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
+                                    if (GetEDmgByStacks(target) > target.Health)
                                     {
-                                        E.Cast(target);
+                                        E.Cast();
+                                    }
+                                    else
+                                    {
+                                        foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
+                                        {
+                                            E.Cast();
+                                        }
                                     }
                                 }
 
@@ -233,6 +237,19 @@ namespace Kalista
 
             return target;
         }
+        internal static double GetEDmgByStacks(Obj_AI_Base target)
+        {
+            var stacks = target.Buffs.FirstOrDefault(b => b.DisplayName.ToLower() == "kalistaexpungemarker");
+            if (stacks != null)
+            {
+                double TotalDamage = (10 + 10 * Player.Spellbook.GetSpell(SpellSlot.E).Level) + 0.6 * Player.FlatPhysicalDamageMod;
+                TotalDamage += stacks.Count * (new double[] { 0, 5, 9, 14, 20, 27 }[Player.Spellbook.GetSpell(SpellSlot.E).Level] + (0.12 + 0.03 * Player.Spellbook.GetSpell(SpellSlot.E).Level) * Player.FlatPhysicalDamageMod);
+                return Player.CalcDamage(target, Damage.DamageType.Physical ,TotalDamage);
+            }
+
+            return 0;
+        }
+
         public static Obj_AI_Hero FriendlyTarget()
         {
             var hptosave = Config.Item("savehp").GetValue<Slider>().Value;
