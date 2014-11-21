@@ -140,9 +140,7 @@ namespace Kalista
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            packetCast = Config.Item("UsePacket").GetValue<bool>();
-            var target2 = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-
+            var target2 = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
