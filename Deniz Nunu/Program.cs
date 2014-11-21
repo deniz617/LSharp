@@ -96,7 +96,8 @@ namespace Nunu
             Config.SubMenu("KS").AddItem(new MenuItem("StealE", "Steal With E").SetValue(true));
             Config.SubMenu("KS").AddItem(new MenuItem("BreakU", "Break Ulti To Steal?").SetValue(false));
             Config.AddSubMenu(new Menu("Misc", "Misc"));
-            Config.SubMenu("Misc").AddItem(new MenuItem("HealQ", "Use Q if HP is not Full").SetValue(true));
+            Config.SubMenu("Misc").AddItem(new MenuItem("HealQ", "Use Q if").SetValue(true));
+            Config.SubMenu("Misc").AddItem(new MenuItem("QHP", "HP is %").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("QMana", "Min Mana Q").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("GetAsisted", "Use W On Allies").SetValue(true));
             Config.SubMenu("Misc").AddItem(new MenuItem("WMana", "Min Mana W").SetValue(new Slider(40, 1, 100)));
@@ -164,11 +165,11 @@ namespace Nunu
                 {
                     if (Config.Item("BreakU").GetValue<bool>())
                     {
-                        E.CastOnUnit(target, packetCast);
+                        E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
                     }
                     if (target != null && Config.Item("UseEHarass").GetValue<bool>() && !(Player.IsChannelingImportantSpell()))
                     {
-                        E.CastOnUnit(target, packetCast);
+                        E.CastOnUnit(target ,Config.Item("packetCast").GetValue<bool>());
                     }
                 }
             }
@@ -179,20 +180,20 @@ namespace Nunu
                 var ManaHarass = Config.Item("EMana").GetValue<Slider>().Value;
                 if (target != null && Config.Item("UseEHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass && !(Player.IsChannelingImportantSpell()))
                 {
-                    E.CastOnUnit(target);
+                    E.CastOnUnit(target,Config.Item("packetCast").GetValue<bool>());
                 }
             }
             if (Config.Item("HealQ").GetValue<bool>())
             {
 
                 var ManaQMinion = Config.Item("QMana").GetValue<Slider>().Value;
+                var HPQ = Config.Item("QHP").GetValue<Slider>().Value;
                 var allMinions = MinionManager.GetMinions(ObjectManager.Player.Position, Q.Range, MinionTypes.All);
-                if (Q.IsReady() && ((Player.Health / Player.MaxHealth * 100) < 99) && (Player.Mana / Player.MaxMana * 100) > ManaQMinion && !(Player.IsChannelingImportantSpell()))
+                if (Q.IsReady() && ((Player.Health / Player.MaxHealth * 100) < HPQ) && (Player.Mana / Player.MaxMana * 100) > ManaQMinion && !(Player.IsChannelingImportantSpell()))
                 {
                     foreach (var minion in allMinions)
                     {
-                        Game.PrintChat("Using Q to Heal");
-                        Q.CastOnUnit(minion, packetCast);
+                        Q.CastOnUnit(minion, Config.Item("packetCast").GetValue<bool>());
                     }
                 }
             }
@@ -202,7 +203,7 @@ namespace Nunu
                 if (W.IsReady() && (Player.Mana / Player.MaxMana * 100) > ManaW && !(Player.IsChannelingImportantSpell()))
                 {
                     var temptarget = FriendlyTarget();
-                    if (temptarget == Player)
+                    if (temptarget.NetworkId == Player.NetworkId)
                     {
                         //nothing
                     }
@@ -269,7 +270,7 @@ namespace Nunu
                 if (target != null && Config.Item("UseEHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass && !(Player.IsChannelingImportantSpell()))
                 {
 
-                    E.CastOnUnit(target, packetCast);
+                    E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
                 }
             }
         }
@@ -287,7 +288,7 @@ namespace Nunu
                             (int)(Player.Distance(minion) * 1000 / 1400)) <
                          Player.GetSpellDamage(minion, SpellSlot.Q))
                     {
-                        Q.CastOnUnit(minion);
+                        Q.CastOnUnit(minion ,Config.Item("packetCast").GetValue<bool>());
                         return;
                     }
                 }
