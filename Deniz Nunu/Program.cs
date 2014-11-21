@@ -219,27 +219,26 @@ namespace Nunu
         }
         private static void Combo()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-            if (target != null)
-            {
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
-                if (Player.Distance(target) >= 550 && E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
+
+                if (Player.Distance(target) <= 600 && E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
                 {
-                    E.CastOnUnit(target, packetCast);
+                    E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
                     Game.PrintChat("Casted E in Combo");
                 }
-                if (W.IsReady() && Player.Distance(target) >= 130 && !(Player.IsChannelingImportantSpell()))
+                if (W.IsReady() && Player.Distance(target) <= 130 && !(Player.IsChannelingImportantSpell()))
                 {
                     W.Cast(Player);
                 }
-                if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) >= 540 && R.IsReady())
+                if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 540 && R.IsReady())
                 {
                     if (GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value)
                     {
                         R.Cast();
                     }
                 }
-            }
+           
 
         }
 
