@@ -344,26 +344,26 @@ namespace Nunu
         }
         public static void UseSmite()
         {
-            var minion =
+            var minion3 =
                 MinionManager.GetMinions(Player.ServerPosition, 200, MinionTypes.All, MinionTeam.NotAlly,
                     MinionOrderTypes.MaxHealth).FirstOrDefault();
-            if (minion != null)
+            if (minion3 != null)
             {
                 foreach (var name in buffandepics)
                 {
-                    if (minion.Name.ToLower().Contains(name.ToLower()))
+                    if (minion3.Name.ToLower().Contains(name.ToLower()))
                     {
                         var damageQ = 250 + 150 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;  
                         smiteSlot = Player.GetSpellSlot("SummonerSmite");
-                        minionz = minion;
-                        if (SmiteDmg() > minion.Health && minion.IsValidTarget(780)) Player.SummonerSpellbook.CastSpell(smiteSlot, minion);
-                        if (Q.IsReady() && minion.Distance(Player) < 135 && damageQ > minion.Health)
+                        minionz = minion3;
+                        if (SmiteDmg() > minion3.Health && minion3.IsValidTarget(780)) Player.SummonerSpellbook.CastSpell(smiteSlot, minion3);
+                        if (Q.IsReady() && minion3.Distance(Player) < 140 && damageQ > minion3.Health)
                         {
-                            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(minion.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
+                            Q.CastOnUnit(minion3 ,true);//Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(minion.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
                         }
-                        if(minion.Distance(Player) < 200 && SmiteDmg() > minion.Health)
+                        if(minion3.Distance(Player) < 200 && SmiteDmg() > minion3.Health)
                         {
-                            Player.SummonerSpellbook.CastSpell(smiteSlot, minion);
+                            Player.SummonerSpellbook.CastSpell(smiteSlot, minion3);
                         }
 
                       
