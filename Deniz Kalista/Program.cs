@@ -271,7 +271,7 @@ namespace Kalista
                 if (target != null && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass && !(Player.IsChannelingImportantSpell()))
             {
 
-                Q.Cast(target,Config.Item("packetCast").GetValue<bool>());
+                Q.Cast(target);
             }
             }
         }
