@@ -23,16 +23,17 @@ namespace Kalista
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
 
-        public static Spell Q;
-        public static Spell W;
-        public static Spell E;
-        public static Spell R;
+        private static Spell Q = new Spell(SpellSlot.Q, 1450);
+        private static Spell W = new Spell(SpellSlot.W, 5500);
+        private static Spell E = new Spell(SpellSlot.E, 970);
+        private static Spell R = new Spell(SpellSlot.R, 1250);
         private static bool packetCast;
         //Menu
         public static Menu Config;
 
         private static Obj_AI_Hero Player;
 
+         
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -45,17 +46,12 @@ namespace Kalista
 
             //Create the spells
 
-            Q = new Spell(SpellSlot.Q, 1450);
-            W = new Spell(SpellSlot.W, 5500);
-            E = new Spell(SpellSlot.E, 950);
-            R = new Spell(SpellSlot.R, 1250);
             Q.SetSkillshot(0.25f, 60f, 2000f, true, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.25f, 80f, 1600f, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 60f, 2000f, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(1f, 160f, 2000f, false, SkillshotType.SkillshotLine);
         
-            SpellList.Add(Q);
-            SpellList.Add(W);
-            SpellList.Add(E);
+
 
             //Create the menu
             Config = new Menu(ChampionName, ChampionName, true);
@@ -101,14 +97,9 @@ namespace Kalista
             Config.SubMenu("Misc").AddItem(new MenuItem("Harasser", "Harass Allways").SetValue(true));
            // Config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
-            Config.SubMenu("Drawings")
-                .AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
-            Config.SubMenu("Drawings")
-                .AddItem(
-                    new MenuItem("WRange", "W range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
-            Config.SubMenu("Drawings")
-                  .AddItem(
-                      new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings") .AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
             Config.SubMenu("Drawings").AddItem(eDamage);
             Config.AddToMainMenu();
 
@@ -152,32 +143,38 @@ namespace Kalista
                     Harass();
                     break;
             }
+            Misc();
 
+        }
+           
+            
 
            
+        
+        private static void Misc()
+        {
             //Misc -
             if (E.IsReady())
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
                 var eman = Config.Item("EMana").GetValue<Slider>().Value;
-                    if ((Player.Mana / Player.MaxMana * 100) > eman)
-                        {
-                            foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
-                            {
-                                E.Cast(target);
-                            }
-                        }
+                if ((Player.Mana / Player.MaxMana * 100) > eman)
+                {
+                    foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
+                    {
+                        E.Cast(target);
+                    }
+                }
             }
             if (Config.Item("StealE").GetValue<bool>())
             {
-                var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical); 
+                var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
                 if (target.Health < Player.GetSpellDamage(Player, SpellSlot.E))
                 {
                     E.Cast(target);
                 }
             }
-
-            if (Config.Item("Harasser").GetValue<bool>())
+             if (Config.Item("Harasser").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical); 
                 var ManaHarass = Config.Item("QMana").GetValue<Slider>().Value;
@@ -196,7 +193,6 @@ namespace Kalista
                }
             }
         
-
         private static void Combo()
         {
             if(!(Q.IsReady()) && !(E.IsReady()) && !(R.IsReady()))
@@ -204,15 +200,10 @@ namespace Kalista
                 return;
             }
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-            if (target != null)
-            {
 
                 if (Config.Item("ComboQ").GetValue<bool>() && Player.Distance(target) <= 1450 && Q.IsReady())// if target is in spear range and spear ready
                     {
-                     if(Q.GetPrediction(target).Hitchance >= HitChance.Medium)
-                     {
-                         Q.Cast(target);
-                     }            
+                         Q.Cast(target);        
                     }
                 if (E.IsReady() && Player.Distance(target) <= E.Range)
                                 {
@@ -226,7 +217,6 @@ namespace Kalista
                                     {
                                          R.Cast(nearest());
                                     }
-                }
                
             }
         public static Obj_AI_Hero nearest()
