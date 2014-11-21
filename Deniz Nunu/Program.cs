@@ -113,7 +113,7 @@ namespace Nunu
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
-            Game.PrintChat("Deniz617's Nunu Loaded 1");
+            Game.PrintChat("Deniz617's Nunu Loaded");
         }
 
 
