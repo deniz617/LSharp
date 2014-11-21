@@ -225,7 +225,6 @@ namespace Nunu
                 if (Player.Distance(target) <= 600 && E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
                 {
                     E.CastOnUnit(target, Config.Item("packetCast").GetValue<bool>());
-                    Game.PrintChat("Casted E in Combo");
                 }
                 if (W.IsReady() && Player.Distance(target) <= 130 && !(Player.IsChannelingImportantSpell()))
                 {
