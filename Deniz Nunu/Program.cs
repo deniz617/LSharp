@@ -219,7 +219,7 @@ namespace Nunu
         }
         private static void Combo()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
 
                 if (Player.Distance(target) <= 600 && E.IsReady() && !(Player.IsChannelingImportantSpell()))// snow ball
