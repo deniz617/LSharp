@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 #endregion
 
@@ -27,12 +28,13 @@ namespace Nunu
         public static Spell W;
         public static Spell E;
         public static Spell R;
+        public static SpellSlot smiteSlot;
         private static bool packetCast;
         //Menu
         public static Menu Config;
 
         private static Obj_AI_Hero Player;
-
+        public static Obj_AI_Base minionz;
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -102,11 +104,14 @@ namespace Nunu
             Config.SubMenu("Misc").AddItem(new MenuItem("GetAsisted", "Use W On Allies").SetValue(true));
             Config.SubMenu("Misc").AddItem(new MenuItem("WMana", "Min Mana W").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("Harasser", "Harass Allways").SetValue(true));
+            Config.AddSubMenu(new Menu("Jungle", "Jungle"));
+            Config.SubMenu("Jungle").AddItem(new MenuItem("AutoSteal", "Auto Q Baron & Dragon?").SetValue(true));
+            Config.SubMenu("Jungle").AddItem(new MenuItem("Bluered", "what about Blue And Red?").SetValue(true));
             Config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
             Config.SubMenu("Drawings").AddItem(eDamage);
             Config.AddToMainMenu();
 
@@ -158,6 +163,10 @@ namespace Nunu
 
 
             //Misc -
+            if(Config.Item("AutoSteal").GetValue<bool>())
+            {
+                Steal();
+            }
             if (Config.Item("StealE").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
@@ -244,7 +253,34 @@ namespace Nunu
                }
 
         }
-
+        private static void Steal()
+        {
+            UseSmite();
+            /*var damageQ = 250 + 150 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;
+            Obj_AI_Base mob = GetNearest(ObjectManager.Player.ServerPosition);
+            if (mob != null && Config.Item("AutoSteal").GetValue<bool>())
+            {
+                if(mob.SkinName == "Dragon" || mob.SkinName == "Worm" )
+                {
+                    if (mob.Health < damageQ && Vector3.Distance(ObjectManager.Player.ServerPosition, mob.ServerPosition) < 145 && mob.IsVisible)
+                    {
+                        Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(mob.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
+                    }
+                    
+                }
+                if (Config.Item("Bluered").GetValue<bool>() && (mob.SkinName == "AncientGolem" || mob.SkinName == "LizardElder") && mob.IsVisible)
+                {
+                    if (mob.Health < damageQ && Vector3.Distance(ObjectManager.Player.ServerPosition, mob.ServerPosition) < 145)
+                    {
+                        Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(mob.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
+                    }
+                }
+            }*/
+        }
+        private static readonly string[] buffandepics =
+        {
+            "LizardElder", "AncientGolem", "Worm", "Dragon"
+        };
         public static Obj_AI_Hero FriendlyTarget()
         {
             Obj_AI_Hero target = null;
@@ -298,6 +334,49 @@ namespace Nunu
 
 
         }
+
+        public static double SmiteDmg()
+        {
+            int[] dmg =
+            {
+                20*Player.Level + 370, 30*Player.Level + 330, 40*+Player.Level + 240, 50*Player.Level + 100
+            };
+            return Player.SummonerSpellbook.CanUseSpell(smiteSlot) == SpellState.Ready ? dmg.Max() : 0;
+        }
+        public static void UseSmite()
+        {
+            var minion =
+                MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly,
+                    MinionOrderTypes.MaxHealth).FirstOrDefault();
+            if (minion != null)
+            {
+                foreach (var name in buffandepics)
+                {
+                    if (minion.Name.ToLower().Contains(name.ToLower()))
+                    {
+                        var damageQ = 250 + 150 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;  
+                        smiteSlot = Player.GetSpellSlot("SummonerSmite");
+                        minionz = minion;
+                        if (SmiteDmg() > minion.Health && minion.IsValidTarget(780)) Player.SummonerSpellbook.CastSpell(smiteSlot, minion);
+                        if (Q.IsReady() && minion.Distance(Player) < 135 && damageQ > minion.Health)
+                        {
+                            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(minion.NetworkId, (SpellSlot)64)).Send(PacketChannel.C2S);
+                        }
+                        if(minion.Distance(Player) < 200 && SmiteDmg() > minion.Health)
+                        {
+                            Player.SummonerSpellbook.CastSpell(smiteSlot, minion);
+                        }
+                        if (!Q.IsReady()) return;
+
+                      
+                    }
+                }
+            }
+        }
+
+
+
+
 
     }
 }
