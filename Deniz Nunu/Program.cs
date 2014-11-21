@@ -105,8 +105,7 @@ namespace Nunu
             Config.SubMenu("Misc").AddItem(new MenuItem("WMana", "Min Mana W").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("Harasser", "Harass Allways").SetValue(true));
             Config.AddSubMenu(new Menu("Jungle", "Jungle"));
-            Config.SubMenu("Jungle").AddItem(new MenuItem("AutoSteal", "Auto Q Baron & Dragon?").SetValue(true));
-            Config.SubMenu("Jungle").AddItem(new MenuItem("Bluered", "what about Blue And Red?").SetValue(true));
+            Config.SubMenu("Jungle").AddItem(new MenuItem("AutoSteal", "Auto Q or Smite").SetValue(true));
             Config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
             Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
