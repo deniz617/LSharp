@@ -230,7 +230,7 @@ namespace Nunu
                 {
                     W.Cast(Player);
                 }
-                if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 540 && R.IsReady())
+                if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 580 && R.IsReady())
                 {
                     if (GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value)
                     {
