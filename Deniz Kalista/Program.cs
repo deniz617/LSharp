@@ -99,7 +99,7 @@ namespace Kalista
             Config.SubMenu("Misc").AddItem(new MenuItem("safer", "Use R to save allies").SetValue(true));
             Config.SubMenu("Misc").AddItem(new MenuItem("savehp", "HP to Save %").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("Harasser", "Harass Allways").SetValue(true));
-            Config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
+           // Config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
             Config.SubMenu("Drawings")
                 .AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
@@ -164,7 +164,7 @@ namespace Kalista
                         {
                             foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
                             {
-                                E.Cast(target, Config.Item("packetCast").GetValue<bool>());
+                                E.Cast(target);
                             }
                         }
             }
@@ -173,7 +173,7 @@ namespace Kalista
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical); 
                 if (target.Health < Player.GetSpellDamage(Player, SpellSlot.E))
                 {
-                    E.Cast(target,Config.Item("packetCast").GetValue<bool>());
+                    E.Cast(target);
                 }
             }
 
@@ -181,11 +181,11 @@ namespace Kalista
             {
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical); 
                 var ManaHarass = Config.Item("QMana").GetValue<Slider>().Value;
-                if (Q.IsReady() && target != null && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass)
+                if (Q.IsReady() && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass)
                 {
                     if (Q.GetPrediction(target).Hitchance >= HitChance.High)
                     {
-                        Q.Cast(target, Config.Item("packetCast").GetValue<bool>());
+                        Q.Cast(target);
                     }
                 }
             }
@@ -203,7 +203,7 @@ namespace Kalista
             {
                 return;
             }
-            var target = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target != null)
             {
 
@@ -211,18 +211,18 @@ namespace Kalista
                     {
                      if(Q.GetPrediction(target).Hitchance >= HitChance.Medium)
                      {
-                         Q.Cast(target,Config.Item("packetCast").GetValue<bool>());
+                         Q.Cast(target);
                      }            
                     }
-                                if (E.IsReady())
+                if (E.IsReady() && Player.Distance(target) <= E.Range)
                                 {
                                     foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
                                     {
-                                        E.Cast(target, Config.Item("packetCast").GetValue<bool>());
+                                        E.Cast(target);
                                     }
                                 }
 
-                                 if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) >= 1200 && R.IsReady())
+                                 if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 1200 && R.IsReady())
                                     {
                                          R.Cast(nearest());
                                     }
