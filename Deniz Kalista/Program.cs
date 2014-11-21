@@ -83,7 +83,7 @@ namespace Kalista
      
 
             //Damage after combo:
-            var eDamage = new MenuItem("DamageAfterCombo", "Draw Damage After Used Q+2AA").SetValue(true);
+            var eDamage = new MenuItem("DamageAfterCombo", "HP After Used Q+2AA").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit += hero => (float)(Player.GetSpellDamage(hero, SpellSlot.Q) + (Player.GetAutoAttackDamage(hero)*2)); 
             Utility.HpBarDamageIndicator.Enabled = eDamage.GetValue<bool>();
             eDamage.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
@@ -160,22 +160,22 @@ namespace Kalista
             //Misc -
             if (E.IsReady())
             {
-                var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
                 var eman = Config.Item("EMana").GetValue<Slider>().Value;
                     if ((Player.Mana / Player.MaxMana * 100) > eman)
                         {
                             foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
                             {
-                                 E.Cast(target);
+                                E.Cast(target, Config.Item("packetCast").GetValue<bool>());
                             }
                         }
             }
             if (Config.Item("StealE").GetValue<bool>())
             {
-                var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical); 
+                var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical); 
                 if (target.Health < Player.GetSpellDamage(Player, SpellSlot.E))
                 {
-                    E.Cast(target);
+                    E.Cast(target,Config.Item("packetCast").GetValue<bool>());
                 }
             }
 
@@ -183,10 +183,12 @@ namespace Kalista
             {
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical); 
                 var ManaHarass = Config.Item("QMana").GetValue<Slider>().Value;
-                if (Q.IsReady() && target != null && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass && !(Player.IsChannelingImportantSpell()))
+                if (Q.IsReady() && target != null && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass)
                 {
-                    Q.Cast(target);
-                   
+                    if (Q.GetPrediction(target).Hitchance >= HitChance.High)
+                    {
+                        Q.Cast(target, Config.Item("packetCast").GetValue<bool>());
+                    }
                 }
             }
            
@@ -199,19 +201,26 @@ namespace Kalista
 
         private static void Combo()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if(!(Q.IsReady()) && !(E.IsReady()) && !(R.IsReady()))
+            {
+                return;
+            }
+            var target = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
             if (target != null)
             {
 
-                if (Config.Item("ComboQ").GetValue<bool>() && Player.Distance(target) >= 1450 && Q.IsReady())// if target is in spear range and spear ready
+                if (Config.Item("ComboQ").GetValue<bool>() && Player.Distance(target) <= 1450 && Q.IsReady())// if target is in spear range and spear ready
                     {
-                        Q.Cast(target);
+                     if(Q.GetPrediction(target).Hitchance >= HitChance.Medium)
+                     {
+                         Q.Cast(target,Config.Item("packetCast").GetValue<bool>());
+                     }            
                     }
-                         if (E.IsReady())
+                                if (E.IsReady())
                                 {
                                     foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
                                     {
-                                         E.Cast(target, packetCast);
+                                        E.Cast(target, Config.Item("packetCast").GetValue<bool>());
                                     }
                                 }
 
@@ -248,7 +257,6 @@ namespace Kalista
             {
                 target = xe;
             }
-
             return target;
         }
         private static int GetEnemys(Obj_AI_Hero target)
@@ -265,7 +273,7 @@ namespace Kalista
                 if (target != null && Config.Item("UseQHarass").GetValue<bool>() && (Player.Mana / Player.MaxMana * 100) > ManaHarass && !(Player.IsChannelingImportantSpell()))
             {
 
-                Q.Cast(target);
+                Q.Cast(target,Config.Item("packetCast").GetValue<bool>());
             }
             }
         }
