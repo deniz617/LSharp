@@ -28,7 +28,7 @@ namespace Kalista
         private static Spell W = new Spell(SpellSlot.W, 5500);
         private static Spell E = new Spell(SpellSlot.E, 970);
         private static Spell R = new Spell(SpellSlot.R, 1250);
-        private static bool packetCast;
+        private static bool packetCast = true;
         //Menu
         public static Menu Config;
 
@@ -105,13 +105,21 @@ namespace Kalista
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
          //   Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
-            Game.PrintChat("<font color='#9900CC'>>> Deniz Kalista v0.5 Loaded");
+            Game.PrintChat("<font color='#00FFFF'>>> Deniz Kalista v0.5 Loaded");
         }
 
         #endregion
         private static void Drawing_OnDraw(EventArgs args)
         {
             //Draw the ranges of the spells.
+                Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range + E.Range, SimpleTs.DamageType.Physical);
+                int buffCount = 0;
+                foreach (BuffInstance buff in target.Buffs.Where(buff => buff.Name == "KalistaExpungeMarker"))
+                {
+                    buffCount = buff.Count;
+                }
+                Drawing.DrawText(50, 50, Color.Red, "Spear Stacks: " + buffCount);
+
             foreach (var spell in SpellList)
             {
                 var menuItem = Config.Item(spell.Slot + "Range").GetValue<Circle>();
@@ -162,6 +170,7 @@ namespace Kalista
 
                     if (buff != null && buff.Count >= Config.Item("eStacks").GetValue<Slider>().Value)
                     E.Cast();   
+                
                 }
             }
             if (Config.Item("StealE").GetValue<bool>())
@@ -190,8 +199,10 @@ namespace Kalista
             }
            
             if(Config.Item("safer").GetValue<bool>())
+
                {
-                    R.CastOnUnit(FriendlyTarget());
+                if(FriendlyTarget().NetworkId != Player.NetworkId )
+                   R.Cast();
                }
             }
         
@@ -218,7 +229,8 @@ namespace Kalista
 
                                  if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 1200 && R.IsReady())
                                     {
-                                         R.Cast(nearest());
+                                     if(nearest().NetworkId != Player.NetworkId)
+                                        R.Cast();
                                     }
                
             }
