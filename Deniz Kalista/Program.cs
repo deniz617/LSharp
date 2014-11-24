@@ -15,6 +15,7 @@ namespace Kalista
 {
     internal class Program
     {
+        #region Creating Variables & Instances
         public const string ChampionName = "Kalista";
 
         //Orbwalker instance
@@ -32,13 +33,13 @@ namespace Kalista
         public static Menu Config;
 
         private static Obj_AI_Hero Player;
+        #endregion
 
-         
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
-
+        #region OnGameLoad & MenuCreating/TS Creating
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
@@ -103,16 +104,11 @@ namespace Kalista
             //Add the events we are going to use:
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
-            Game.PrintChat("<font color='9900CC'>>> Deniz Kalista v0.5 Loaded");
-        }
-        private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
-        {
-            if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
-                args.Process = !(Q.IsReady() || E.IsReady() || Player.Distance(args.Target) >= 550);
+         //   Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
+            Game.PrintChat("<font color='#9900CC'>>> Deniz Kalista v0.5 Loaded");
         }
 
-
+        #endregion
         private static void Drawing_OnDraw(EventArgs args)
         {
             //Draw the ranges of the spells.
@@ -129,6 +125,13 @@ namespace Kalista
         private static void Game_OnGameUpdate(EventArgs args)
         {
             var target2 = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
+            if (Config.SubMenu("Combo").Item("ComboActive").GetValue<KeyBind>().Active)
+                Combo();
+
+            if (Config.SubMenu("Harass").Item("HarassActive").GetValue<KeyBind>().Active)
+                Harass();
+            #region Orbwalker.Active Mode - Disabled
+            /*  ### Dont want to use this more
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -139,15 +142,12 @@ namespace Kalista
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
                     break;
-            }
+            }*/
+            #endregion
             Misc();
 
         }
-           
             
-
-           
-        
         private static void Misc()
         {
             //Misc -
