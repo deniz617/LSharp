@@ -132,7 +132,9 @@ namespace Kalista
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
+                    Orbwalker.SetAttack(true);
                     Combo();
+                    Orbwalker.SetAttack(true);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
