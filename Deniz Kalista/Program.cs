@@ -104,7 +104,7 @@ namespace Kalista
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
-            Game.PrintChat("Deniz Kalista Loaded.");
+            Game.PrintChat("<font color='#99FF00'>--> Deniz Kalista v0.5 Loaded");
         }
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -132,9 +132,7 @@ namespace Kalista
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    Orbwalker.SetAttack(false);
                     Combo();
-                    Orbwalker.SetAttack(true);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
@@ -208,13 +206,7 @@ namespace Kalista
                                     {
                                         E.Cast();
                                     }
-                                    else
-                                    {
-                                        foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
-                                        {
-                                            E.Cast();
-                                        }
-                                    }
+                           
                                 }
 
                                  if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 1200 && R.IsReady())
