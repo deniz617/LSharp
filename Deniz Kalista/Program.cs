@@ -109,7 +109,7 @@ namespace Kalista
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
-                args.Process = !(Q.IsReady() || E.IsReady());
+                args.Process = !(Q.IsReady() || E.IsReady() || Player.Distance(args.Target) >= 550);
         }
 
 
@@ -134,7 +134,7 @@ namespace Kalista
                 case Orbwalking.OrbwalkingMode.Combo:
                     Orbwalker.SetAttack(false);
                     Combo();
-                    Orbwalker.SetAttack(true);
+                    Orbwalker.SetAttack(false);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
