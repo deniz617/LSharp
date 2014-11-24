@@ -88,7 +88,7 @@ namespace Kalista
             Config.AddSubMenu(new Menu("KS", "KS"));
             Config.SubMenu("KS").AddItem(new MenuItem("StealE","Steal With E").SetValue(true));
             Config.AddSubMenu(new Menu("Misc", "Misc"));
-            Config.SubMenu("Misc").AddItem(new MenuItem("eStacks", "E Stacks").SetValue(new Slider(10, 2, 30)));
+            Config.SubMenu("Misc").AddItem(new MenuItem("eStacks", "E Stacks *Broken").SetValue(new Slider(10, 2, 30)));
             Config.SubMenu("Misc").AddItem(new MenuItem("eMana", "Min Mana E").SetValue(new Slider(40, 1, 100)));
             Config.SubMenu("Misc").AddItem(new MenuItem("safer", "Use R to save allies").SetValue(true));
             Config.SubMenu("Misc").AddItem(new MenuItem("savehp", "HP to Save %").SetValue(new Slider(40, 1, 100)));
@@ -111,14 +111,14 @@ namespace Kalista
         #endregion
         private static void Drawing_OnDraw(EventArgs args)
         {
-            //Draw the ranges of the spells.
+            /*
                 Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range + E.Range, SimpleTs.DamageType.Physical);
                 int buffCount = 0;
                 foreach (BuffInstance buff in target.Buffs.Where(buff => buff.Name == "KalistaExpungeMarker"))
                 {
                     buffCount = buff.Count;
                 }
-                Drawing.DrawText(50, 50, Color.Red, "Spear Stacks: " + buffCount);
+                Drawing.DrawText(50, 50, Color.Red, "Spear Stacks: " + buffCount);*/
 
             foreach (var spell in SpellList)
             {
