@@ -104,7 +104,7 @@ namespace Kalista
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
-            Game.PrintChat("<font color='#99FF00'>--> Deniz Kalista v0.5 Loaded");
+            Game.PrintChat("<font color='9900CC'>>> Deniz Kalista v0.5 Loaded");
         }
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -132,9 +132,9 @@ namespace Kalista
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    Orbwalker.SetAttack(true);
+                    Orbwalker.SetAttack(false);
                     Combo();
-                    Orbwalker.SetAttack(true);
+                    Orbwalker.SetAttack(false);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
