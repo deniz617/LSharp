@@ -157,18 +157,23 @@ namespace Kalista
                 var eman = Config.Item("EMana").GetValue<Slider>().Value;
                 if ((Player.Mana / Player.MaxMana * 100) > eman)
                 {
-                    foreach (var buff in target.Buffs.Where(buff => buff.DisplayName.ToLower() == "kalistaexpungemarker").Where(buff => buff.Count == Config.Item("eStacks").GetValue<Slider>().Value))
-                    {
-                            E.Cast();
-                    }
+
+                    var buff = target.Buffs.FirstOrDefault(b => b.DisplayName.ToLower() == "kalistaexpungemarker");
+
+                    if (buff != null && buff.Count >= Config.Item("eStacks").GetValue<Slider>().Value)
+                    E.Cast();   
                 }
             }
             if (Config.Item("StealE").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-                    if (GetEDmgByStacks(target) > target.Health)
+                    foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(E.Range)))
                     {
-                        E.Cast(target);
+                    if (Player.GetSpellDamage(target, SpellSlot.E) > target.Health)
+                    {
+                        E.Cast();
+                        break;
+                    }
                     }
             }
              if (Config.Item("Harasser").GetValue<bool>())
@@ -233,6 +238,7 @@ namespace Kalista
         }
         internal static double GetEDmgByStacks(Obj_AI_Base target)
         {
+
             var stacks = target.Buffs.FirstOrDefault(b => b.DisplayName.ToLower() == "kalistaexpungemarker");
             if (stacks != null)
             {
