@@ -13,6 +13,7 @@ using LeagueSharp.Common;
 
 namespace Kalista
 {
+     
     internal class Program
     {
         #region Creating Variables & Instances
@@ -132,6 +133,7 @@ namespace Kalista
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            var target3 = SimpleTs.GetTarget(975, SimpleTs.DamageType.Physical);
             var target2 = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
             if (Config.SubMenu("Combo").Item("ComboActive").GetValue<KeyBind>().Active)
                 Combo();
@@ -153,9 +155,33 @@ namespace Kalista
             }*/
             #endregion
             Misc();
+            int xBuffCount = 0;
+            foreach (
+                BuffInstance buff in
+                    from enemy in
+                        ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget(975))
+                    from buff in enemy.Buffs
+                    where buff.Name == "kalistaexpungemarker"
+                    select buff)
+            {
+                xBuffCount = buff.Count;
+            }
+            if (target3.IsValidTarget(E.Range) && E.IsReady() &&
+                Player.GetSpellDamage(target3, SpellSlot.E) * xBuffCount > target3.Health)
+            {
+                if (Config.Item("StealE").GetValue<bool>())
+                    E.Cast(true);
+            }
+            if (target3.IsValidTarget(Q.Range) && Q.IsReady() && Q.IsKillable(target3))
+            {
+                if (Config.Item("StealQ").GetValue<bool>())
+                {
+                    Q.Cast(target3);
+                }
+            }
 
         }
-            
+     
         private static void Misc()
         {
             //Misc -
@@ -205,7 +231,7 @@ namespace Kalista
                    R.Cast();
                }
             }
-        
+    
         private static void Combo()
         {
             if(!(Q.IsReady()) && !(E.IsReady()) && !(R.IsReady()))
