@@ -174,7 +174,7 @@ namespace Kalista
             }
             if (target3.IsValidTarget(Q.Range) && Q.IsReady() && Q.IsKillable(target3))
             {
-                if (Config.Item("StealQ").GetValue<bool>())
+                if (Config.Item("StealE").GetValue<bool>())
                 {
                     Q.Cast(target3);
                 }
@@ -246,10 +246,27 @@ namespace Kalista
                     }
                                 if (E.IsReady() && Player.Distance(target) <= E.Range)
                                 {
-                                    if (GetEDmgByStacks(target) > target.Health)
+                                    int xBuffCount = 0;
+                                    foreach (
+                                        BuffInstance buff in
+                                            from enemy in
+                                                ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget(975))
+                                            from buff in enemy.Buffs
+                                            where buff.Name == "kalistaexpungemarker"
+                                            select buff)
+                                    {
+                                        xBuffCount = buff.Count;
+                                    }
+                                    if (target.IsValidTarget(E.Range) && E.IsReady() &&
+                                        Player.GetSpellDamage(target, SpellSlot.E) * xBuffCount > target.Health)
                                     {
                                         E.Cast();
                                     }
+
+                                 /*   if (GetEDmgByStacks(target) > target.Health)
+                                    {
+                                        E.Cast();
+                                    }*/
                            
                                 }
 
