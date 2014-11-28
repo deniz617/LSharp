@@ -112,14 +112,14 @@ namespace Kalista
         #endregion
         private static void Drawing_OnDraw(EventArgs args)
         {
-            /*
+            
                 Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range + E.Range, SimpleTs.DamageType.Physical);
                 int buffCount = 0;
                 foreach (BuffInstance buff in target.Buffs.Where(buff => buff.Name == "KalistaExpungeMarker"))
                 {
                     buffCount = buff.Count;
                 }
-                Drawing.DrawText(50, 50, Color.Red, "Spear Stacks: " + buffCount);*/
+                Drawing.DrawText(50, 50, Color.Red, "Spear Stacks: " + buffCount);
 
             foreach (var spell in SpellList)
             {
@@ -202,6 +202,10 @@ namespace Kalista
             if (Config.Item("StealE").GetValue<bool>())
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
+                if (GetEDmgByStacks(target) > target.Health)
+                {
+                    E.Cast();
+                }
                     foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(E.Range)))
                     {
                     if (Player.GetSpellDamage(target, SpellSlot.E) > target.Health)
@@ -246,27 +250,11 @@ namespace Kalista
                     }
                                 if (E.IsReady() && Player.Distance(target) <= E.Range)
                                 {
-                                    int xBuffCount = 0;
-                                    foreach (
-                                        BuffInstance buff in
-                                            from enemy in
-                                                ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget(975))
-                                            from buff in enemy.Buffs
-                                            where buff.Name == "kalistaexpungemarker"
-                                            select buff)
-                                    {
-                                        xBuffCount = buff.Count;
-                                    }
-                                    if (target.IsValidTarget(E.Range) && E.IsReady() &&
-                                        Player.GetSpellDamage(target, SpellSlot.E) * xBuffCount > target.Health)
-                                    {
-                                        E.Cast();
-                                    }
 
-                                 /*   if (GetEDmgByStacks(target) > target.Health)
+                                   if (GetEDmgByStacks(target) > target.Health)
                                     {
                                         E.Cast();
-                                    }*/
+                                    }
                            
                                 }
 
@@ -293,7 +281,6 @@ namespace Kalista
         }
         internal static double GetEDmgByStacks(Obj_AI_Base target)
         {
-
             var stacks = target.Buffs.FirstOrDefault(b => b.DisplayName.ToLower() == "kalistaexpungemarker");
             if (stacks != null)
             {
