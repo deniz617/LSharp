@@ -27,7 +27,7 @@ namespace Kalista
 
         private static Spell Q = new Spell(SpellSlot.Q, 1350);
         private static Spell W = new Spell(SpellSlot.W, 5500);
-        private static Spell E = new Spell(SpellSlot.E, 970);
+        private static Spell E = new Spell(SpellSlot.E, 1000);
         private static Spell R = new Spell(SpellSlot.R, 1250);
         private static bool packetCast = true;
         //Menu
@@ -105,11 +105,28 @@ namespace Kalista
             //Add the events we are going to use:
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
+             GameObject.OnCreate += OnCreateObject;
          //   Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
             Game.PrintChat("<font color='#00FFFF'>>> Deniz Kalista v0.5 Loaded");
         }
+       
 
         #endregion
+        private static void OnCreateObject(GameObject sender, EventArgs args)
+        {
+      
+            if (sender.IsAlly || !(sender is Obj_SpellMissile))
+            {
+                return;
+            }
+
+            var missile = (Obj_SpellMissile)sender;
+            if (!(missile.SpellCaster is Obj_AI_Hero) || !(missile.Target.IsMe))
+            {
+                return;
+            }
+        }
+       
         private static void Drawing_OnDraw(EventArgs args)
         {
             
@@ -133,7 +150,7 @@ namespace Kalista
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            var target3 = SimpleTs.GetTarget(975, SimpleTs.DamageType.Physical);
+            var target3 = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
             var target2 = SimpleTs.GetTarget(560, SimpleTs.DamageType.Physical);
             if (Config.SubMenu("Combo").Item("ComboActive").GetValue<KeyBind>().Active)
                 Combo();
@@ -156,7 +173,7 @@ namespace Kalista
             #endregion
             Misc();
             int xBuffCount = 0;
-            foreach (
+          /*  foreach (
                 BuffInstance buff in
                     from enemy in
                         ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget(975))
@@ -165,20 +182,24 @@ namespace Kalista
                     select buff)
             {
                 xBuffCount = buff.Count;
-            }
-            if (target3.IsValidTarget(E.Range) && E.IsReady() &&
-                Player.GetSpellDamage(target3, SpellSlot.E) * xBuffCount > target3.Health)
+            }*/
+            if (target3.IsValidTarget(E.Range) && E.IsReady())
             {
                 if (Config.Item("StealE").GetValue<bool>())
-                    E.Cast(true);
+                { 
+                    if (GetEDmgByStacks(target3) > target3.Health)
+                    {
+                        E.Cast();
+                    }
+                }
             }
-            if (target3.IsValidTarget(Q.Range) && Q.IsReady() && Q.IsKillable(target3))
+         /*   if (target3.IsValidTarget(Q.Range) && Q.IsReady() && Q.IsKillable(target3))
             {
                 if (Config.Item("StealE").GetValue<bool>())
                 {
                     Q.Cast(target3);
                 }
-            }
+            }*/
 
         }
      
@@ -231,7 +252,7 @@ namespace Kalista
             if(Config.Item("safer").GetValue<bool>())
 
                {
-                if(FriendlyTarget().NetworkId != Player.NetworkId )
+                if(FriendlyTarget() != null)
                    R.Cast();
                }
             }
@@ -260,7 +281,7 @@ namespace Kalista
 
                                  if (Config.Item("ComboR").GetValue<bool>() && Player.Distance(target) <= 1200 && R.IsReady())
                                     {
-                                     if(nearest().NetworkId != Player.NetworkId)
+                                     if(nearest() != null)
                                         R.Cast();
                                     }
                
@@ -269,7 +290,7 @@ namespace Kalista
         {
             Obj_AI_Hero target = null;
             var allyList = from hero in ObjectManager.Get<Obj_AI_Hero>()
-                           where hero.IsAlly && hero.IsValidTarget(1200, false)
+                           where hero.IsAlly && !hero.IsMe && hero.IsValidTarget(1200, false)
                            select hero;
 
             foreach (Obj_AI_Hero xe in allyList.OrderByDescending(xe => xe.Position / Player.Position*100))
@@ -297,7 +318,7 @@ namespace Kalista
             var hptosave = Config.Item("savehp").GetValue<Slider>().Value;
             Obj_AI_Hero target = null;
             var allyList = from hero in ObjectManager.Get<Obj_AI_Hero>()
-                           where hero.IsAlly && hero.IsValidTarget(1200, false)
+                           where hero.IsAlly && !hero.IsMe && hero.IsValidTarget(1200, false)
                            select hero;
 
             foreach (Obj_AI_Hero xe in allyList.OrderByDescending(xe => xe.Health / xe.MaxHealth * hptosave))
